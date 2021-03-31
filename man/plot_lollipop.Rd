@@ -2,15 +2,12 @@
 % Please edit documentation in R/plot_lollipop.R
 \name{plot_lollipop}
 \alias{plot_lollipop}
-\title{Produce lollipop plot by ethnoracial, income, and gentrification category.}
+\title{Produce lollipop plot by King County HRA.}
 \usage{
 plot_lollipop(
   data,
   var,
   limits,
-  panel = F,
-  var2 = NULL,
-  panel_titles = NULL,
   x_title = NULL,
   scale_type = "numeric",
   save = F,
@@ -19,17 +16,11 @@ plot_lollipop(
 )
 }
 \arguments{
-\item{data}{Data with column for variable of interest.}
+\item{data}{Data with column for variable of interest with "facet" and "facet_col"}
 
 \item{var}{Column name of variable of interest.}
 
 \item{limits}{Y-axis limits.}
-
-\item{panel}{If T, creates horizontal panel of 2 plots}
-
-\item{var2}{Column name of second variable of interest, if panel = T}
-
-\item{panel_titles}{Vector of 2 strings containing titles for plots in panel}
 
 \item{x_title}{Title to display along x-axis}
 
@@ -42,12 +33,11 @@ plot_lollipop(
 \item{caption}{Figure caption}
 }
 \value{
-Lollipop plot of variable by ethnoracial, income, and gentrification category, with optional columns by SES.
+Lollipop plot of variable by HRA and SES.
 }
 \description{
 This function takes in data and produces a horizontal lollipop plot by
-ethnoracial, income, and gentrification category. The order of these categories
-can be adjusted by changing the factor levels of the facet variable. Input data
-needs columns for variable of interest (titled "var") and tract number (titled
-"tractid10"). Intended to be used after oakViz::aggregate_categories().
+King County HRA The order of these categories can be adjusted by changing
+the factor levels of the facet variable. Input data needs columns for
+variable of interest (titled "var") and HRA.
 }

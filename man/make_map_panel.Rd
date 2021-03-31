@@ -2,12 +2,12 @@
 % Please edit documentation in R/make_map_panel.R
 \name{make_map_panel}
 \alias{make_map_panel}
-\title{Produce Oakland map panel of continuous variable with gradient color scale}
+\title{Produce King County map panel of continuous variable with gradient color scale}
 \usage{
 make_map_panel(
   data,
   var,
-  shp_tracts,
+  shp_file,
   palette = "sequential",
   jenksbreaks = T,
   neg_bins = 3,
@@ -22,11 +22,11 @@ make_map_panel(
 )
 }
 \arguments{
-\item{data}{Data with a column containing census tracts, distinct periods, and variable of interest.}
+\item{data}{Data with a column containing HRAs; 2, 3, or 4 distinct periods; and variable of interest.}
 
 \item{var}{Name of column containing variable to plot.}
 
-\item{shp_tracts}{"US_tract_2010.shp" loaded object}
+\item{shp_file}{hra shapefiles loaded object}
 
 \item{palette}{Color palette: "sequential" (default) or "diverging"}
 
@@ -51,11 +51,10 @@ make_map_panel(
 \item{caption}{Figure caption}
 }
 \value{
-Map panel of variable of interest across four periods.
+Map panel of variable of interest across 2, 3, or 4 periods.
 }
 \description{
-This function takes in data and produces a panel of census tract maps of
-Oakland representing the variable using a gradient color scale, across
-four distinct periods. Should have "tractid10" column for census tracts
-and "periods" column for distinct time periods.
+This function takes in data and produces a panel of HRA maps of
+King County representing the variable using a gradient or discrete color scale, across
+distinct periods. Should have HRA column and "periods" column for distinct maps.
 }

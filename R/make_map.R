@@ -1,12 +1,12 @@
-#' Produce Oakland map of continuous variable with gradient color scale
+#' Produce King County map of continuous variable with gradient color scale
 #'
-#' This function takes in data and produces a census tract map of Oakland
-#' representing the variable using a gradient color scale. Census tract
-#' column must be named "tractid10".
+#' This function takes in data and produces an HRA map of Seattle
+#' representing the variable using a gradient color scale. HRA
+#' column must be named "HRA".
 #'
 #' @param data Data with a column containing census tracts and variable of interest.
 #' @param var Name of column containing variable to plot.
-#' @param shp_tracts "US_tract_2010.shp" loaded object
+#' @param shp_file Hra shape file
 #' @param palette Color palette: "sequential" (default) or "diverging"
 #' @param jenksbreaks Uses Jenks breaks when T, otherwise uses continuous color scale
 #' @param neg_bins For Jenks breaks, number of negative color bins. Default is 3.
@@ -20,10 +20,11 @@
 #' @param caption Figure caption
 #' @return Map of variable of interest.
 #' @export
+
 ## Single Map
 make_map <- function(data,
                      var,
-                     shp_tracts,
+                     shp_file,
                      palette = "sequential",
                      jenksbreaks = T,
                      neg_bins = 3,
@@ -34,9 +35,9 @@ make_map <- function(data,
                      coord = F,
                      save = F,
                      savename = "plot.png",
-                     caption = paste0(frb_caption, ses_caption, period_caption)
+                     caption = "test" #paste0(frb_caption, ses_caption, period_caption)
 ) {
-
+  
   library(tidyverse)
   library(sf)
   library(rgdal)
@@ -45,7 +46,7 @@ make_map <- function(data,
   library(grid)
   library(scales)
   library(BAMMtools)
-
+  
   # Adjust color palette
   if (palette == "sequential") {
     lim = NULL
@@ -53,16 +54,16 @@ make_map <- function(data,
     MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "YlOrRd")
     palette = "YlOrRd"
     direction = 1
-
+    
     # set number of Jenks breaks
     if (jenksbreaks) {
       breaks = data %>%
         dplyr::pull({{var}}) %>%
         BAMMtools::getJenksBreaks(k = 6)
     }
-
+    
   } else if (palette == "diverging") {
-
+    
     # Get limits to center diverging palette around 0
     lim <- data %>%
       select({{var}}) %>%
@@ -72,58 +73,59 @@ make_map <- function(data,
     MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
     palette = "RdBu"
     direction = -1
-
+    
     # find Jenks breaks for negative and positive values separately, then combine
     if (jenksbreaks) {
       values = data %>%
         dplyr::pull({{var}})
-
+      
       # add 0 value to range of values to split negative and positive values
       values = c(0, values)
-
+      
       neg_values = values[which(values <= 0)]
       pos_values = values[which(values >= 0)]
-
+      
       neg_breaks = neg_values %>%
         getJenksBreaks(k = neg_bins + 1)
       pos_breaks = pos_values %>%
         getJenksBreaks(k = pos_bins + 1)
-
+      
       # Removes duplicate 0's in breaks
       breaks = unique(c(neg_breaks, pos_breaks))
-    }
 
+    }
+    
   } else {
     return("Please select sequential or diverging color palette.")
   }
-
+  
   # Overrides lim value if user inputs limits
   if (!is.null(limits)) {
     lim = limits
   }
-
-
-  # county tract map
-  oak_tracts <-
-    shp_tracts %>%
-    filter(GEOID10S %in% oak_ids$trtid10)
-
-  data$tractid10 = as.numeric(data$tractid10)
-
-  data = oak_tracts %>%
-    right_join(data, by = c("GEOID10S" = "tractid10")) %>%
+  
+  
+  # county hra map
+  seattle_hras <-
+    shp_file %>%
+    filter(HRA2010v2_ %in% seattle_hras$HRA)
+  
+  data = seattle_hras %>%
+    right_join(data, by = c("HRA2010v2_" = "HRA")) %>%
     st_transform(CRS("+proj=longlat +datum=WGS84"))
-
+  
   # map data
-  # Google Street Map for Oakland ----
-  gmap_oak <- get_stamenmap(
-    bbox = c(-122.3547, 37.6920, -122.1048, 37.890692),
-    zoom = 12,
+  # Google Street Map for King County ----
+  gmap <- get_stamenmap(
+    bbox = c(-122.65219845641234, 47.05811462511336, -121.05368763130899, 47.81607270131313),
+    # ^ is all king county tracts
+    # c(-122.45262191072183, 47.48734893641715, -122.22946210910732, 47.73869829627044) # seattle
+    zoom = 10, # use 12 for seattle
     maptype = "toner-lite",
     color = "bw")
-
+  
   map <-
-    ggmap(gmap_oak) +
+    ggmap(gmap) +
     geom_sf(
       data = data,
       aes(fill = {{var}}),
@@ -159,7 +161,7 @@ make_map <- function(data,
       panel.border = element_rect(colour = "black", fill=NA)
     ) +
     labs(caption = caption)
-
+  
   # discrete color bar
   if (jenksbreaks) {
     # set colors manually if different number of negative and positive bins
@@ -167,7 +169,7 @@ make_map <- function(data,
       # Custom palette
       # one negative, 3 positive bins:
       pal <- c("#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
-
+      
       scale_fill_fermenter_custom <- function(pal,
                                               breaks,
                                               labels) {
@@ -176,9 +178,9 @@ make_map <- function(data,
                      ggplot2:::binned_pal(scales::manual_pal(unname(pal))),
                      breaks = breaks,
                      labels = labels
-                     )
+        )
       }
-
+      
       map = map + scale_fill_fermenter_custom(pal,
                                               breaks = breaks,
                                               labels = labels)
@@ -189,7 +191,7 @@ make_map <- function(data,
                                        direction = direction,
                                        labels = labels)
     }
-
+    
     # gradient color scale
   } else {
     map = map + scale_fill_gradientn(breaks = breaks,
@@ -197,7 +199,7 @@ make_map <- function(data,
                                      colors = alpha(MAP_COLORS, .8),
                                      limits = lim)
   }
-
+  
   # plot coordinate points
   if (coord) {
     map = map + geom_point(data = data,
@@ -205,7 +207,7 @@ make_map <- function(data,
                            color = "navy", size = 2
     )
   }
-
+  
   if (save) {
     ggsave(savename, map, height = 5, width = 5)
     return(map)

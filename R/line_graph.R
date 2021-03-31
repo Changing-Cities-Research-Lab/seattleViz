@@ -6,7 +6,6 @@
 #' @param dat Data with a columns containing variable of interest, character periods variable ("periods"), and grouping variable ("cat").
 #' @param var Name of variable to plot.
 #' @param y_title Title to display along y-axis.
-#' @param group Category for color grouping: "race" (default), "ethnoracial", "income", "gent"
 #' @param save T if user would like to return plot object and save file, F (default) to just return object.
 #' @param savename File name of map for saving.
 #' @param caption Caption for figure
@@ -16,28 +15,20 @@
 line_graph <- function(
   dat,
   var,
+  limits,
   y_title = NULL,
-  group = "race",
   save = F,
   savename = "plot.png",
-  caption = paste0(acs_caption, "\nUnemployment Estimates were sourced from Catalist's DEEP-MAPS Project.")
+  caption = "" #paste0(acs_caption, "\nUnemployment Estimates were sourced from Catalist's DEEP-MAPS Project.")
 ) {
-
-  if (group == "race") {
-    colors = race_colors
-  } else if (group == "ethnoracial") {
-    colors = race_short_colors
-  } else if (group == "income") {
-    colors = inc_cat_colors
-  } else if (group == "gentrification") {
-    colors = gent_cat_colors
-  } else {
-    return("Please select 'race', 'ethnoracial', 'income', or 'gentrification'")
-  }
+  
+  colors = ses_cat_colors
 
   plot = ggplot(dat, aes(x = periods, y = {{var}}, group = cat)) +
-    geom_line(aes(color = cat), size = 0.8) +
-    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    geom_line(aes(color = cat), size = 1.5) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1), 
+                       limits = limits, 
+                       expand = c(0, 0)) +
     scale_x_discrete(expand = c(0.03, 0.03)) +
     scale_color_manual(values = colors) +
     theme_bw() + theme(

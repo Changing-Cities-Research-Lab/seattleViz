@@ -7,12 +7,11 @@
 line_graph(
   dat,
   var,
+  limits,
   y_title = NULL,
-  group = "race",
   save = F,
   savename = "plot.png",
-  caption = paste0(acs_caption,
-    "\\nUnemployment Estimates were sourced from Catalist's DEEP-MAPS Project.")
+  caption = ""
 )
 }
 \arguments{
@@ -21,8 +20,6 @@ line_graph(
 \item{var}{Name of variable to plot.}
 
 \item{y_title}{Title to display along y-axis.}
-
-\item{group}{Category for color grouping: "race" (default), "ethnoracial", "income", "gent"}
 
 \item{save}{T if user would like to return plot object and save file, F (default) to just return object.}
 

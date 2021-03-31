@@ -1,4 +1,3 @@
-
 # COLORS/LABELS
 # (used in plot_lollipop(), plot_bar_periods(), and plot_bar_periods_ses(), aggregate_categories())
 gent_cat_colors <-

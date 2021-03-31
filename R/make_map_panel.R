@@ -1,13 +1,12 @@
-#' Produce Oakland map panel of continuous variable with gradient color scale
+#' Produce King County map panel of continuous variable with gradient color scale
 #'
-#' This function takes in data and produces a panel of census tract maps of
-#' Oakland representing the variable using a gradient color scale, across
-#' four distinct periods. Should have "tractid10" column for census tracts
-#' and "periods" column for distinct time periods.
+#' This function takes in data and produces a panel of HRA maps of
+#' King County representing the variable using a gradient or discrete color scale, across
+#' distinct periods. Should have HRA column and "periods" column for distinct maps.
 #'
-#' @param data Data with a column containing census tracts, distinct periods, and variable of interest.
+#' @param data Data with a column containing HRAs; 2, 3, or 4 distinct periods; and variable of interest.
 #' @param var Name of column containing variable to plot.
-#' @param shp_tracts "US_tract_2010.shp" loaded object
+#' @param shp_file hra shapefiles loaded object
 #' @param palette Color palette: "sequential" (default) or "diverging"
 #' @param jenksbreaks Uses Jenks Breaks when T, otherwise uses continuous color scale
 #' @param neg_bins For Jenks breaks, number of negative color bins. Default is 3.
@@ -19,13 +18,13 @@
 #' @param save T if user would like to return plot object and save file, F (default) to just return object.
 #' @param savename File name of map for saving.
 #' @param caption Figure caption
-#' @return Map panel of variable of interest across four periods.
+#' @return Map panel of variable of interest across 2, 3, or 4 periods.
 #' @export
 
 make_map_panel <- function(
   data,
   var,
-  shp_tracts,
+  shp_file,
   palette = "sequential",
   jenksbreaks = T,
   neg_bins = 3,
@@ -38,7 +37,7 @@ make_map_panel <- function(
   savename = "plot.png",
   caption = paste0(frb_caption, ses_caption, period_caption)
 ) {
-
+  
   library(sf)
   library(rgdal)
   library(foreach)
@@ -47,99 +46,105 @@ make_map_panel <- function(
   library(gridExtra)
   library(grid)
   library(BAMMtools)
-
+  
   # Adjust color palette
   if (palette == "sequential") {
-
+    
     # Get max and min values for common gradient scale
     max = data %>%
       select({{var}})%>%
       max(na.rm = T)
-
+    
     min = data %>%
       select({{var}}) %>%
       min(na.rm = T)
-
+    
     range = c(min, max)
-
+    
     MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "YlOrRd")
     type = "seq"
     palette = "YlOrRd"
     direction = 1
-
+    
     # set number of Jenks breaks
     if (jenksbreaks) {
       breaks = data %>%
         dplyr::pull({{var}}) %>%
         BAMMtools::getJenksBreaks(k = 6)
     }
-
+    
   } else if (palette == "diverging") {
-
+    
     # Get limits to center diverging palette around 0
     range <- data %>%
       select({{var}}) %>%
       abs() %>%
       max(na.rm = T) * c(-1, 1)
-
+    
     # Diverging palette
     MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
     type = "div"
     palette = "RdBu"
     direction = -1
-
+    
     # find Jenks breaks for negative and positive values separately, then combine
     if (jenksbreaks) {
       values = data %>%
         dplyr::pull({{var}})
-
+      
       # add 0 value to range of values to split negative and positive values
       values = c(0, values)
-
+      
       neg_values = values[which(values <= 0)]
       pos_values = values[which(values >= 0)]
-
+      
       neg_breaks = neg_values %>%
         getJenksBreaks(k = neg_bins + 1)
       pos_breaks = pos_values %>%
         getJenksBreaks(k = pos_bins + 1)
-
-      # Removes duplicate 0's in breaks
+      
+      # Removes duplicates in breaks
       breaks = unique(c(neg_breaks, pos_breaks))
+      
+      # Reset neg bins and pos bins to match actual breaks
+      neg_bins = length(breaks[which(breaks < 0)])
+      pos_bins = length(breaks[which(breaks > 0)])
     }
-
+    
   } else {
     return("Please select sequential or diverging color palette.")
   }
-
+  
   # Overrides lim value if user inputs limits
   if (!is.null(limits)) {
     range = limits
   }
-
-  # county tract map
-  oak_tracts <-
-    shp_tracts %>%
-    filter(GEOID10S %in% oak_ids$trtid10)
-
-  data = oak_tracts %>%
-    right_join(data, by = c("GEOID10S" = "tractid10")) %>%
+  
+  # county hra map
+  seattle_hras <-
+    shp_file %>%
+    filter(HRA2010v2_ %in% seattle_hras$HRA)
+  
+  data = seattle_hras %>%
+    right_join(data, by = c("HRA2010v2_" = "HRA")) %>%
     st_transform(CRS("+proj=longlat +datum=WGS84"))
-
+  
   # map data
   # Google Street Map for Oakland ----
-  gmap_oak <- get_stamenmap(
-    bbox = c(-122.3547, 37.6920, -122.1048, 37.890692),
-    zoom = 12,
+  gmap_seattle <- get_stamenmap(
+    bbox = c(-122.65219845641234, 47.05811462511336, -121.05368763130899, 47.81607270131313),
+    # ^ is all king county tracts
+    # c(-122.45262191072183, 47.48734893641715, -122.22946210910732, 47.73869829627044) # seattle
+    zoom = 10, # use 12 for seattle
     maptype = "toner-lite",
     color = "bw")
-
+  
   maps_all = list()
   period_panels = levels(data$periods)
-
+  
   # Get common legend
   legend_map <-
-    ggmap(gmap_oak) +
+    ggmap(gmap_seattle) +
     geom_sf(
       data = data,
       aes(fill = {{var}}),
@@ -163,28 +168,30 @@ make_map_panel <- function(
       legend.box.margin = margin(3,0,0,0, unit = "pt"),
       panel.border = element_rect(colour = "black", fill=NA)
     )
-
+  
   # discrete color bar
   if (jenksbreaks) {
-
+    
     # set colors manually if different number of negative and positive bins
     if (neg_bins != pos_bins) {
       # Custom palettes ***MUST SET CUSTOM COLORS
-
+      
       # 1 negative, 3 positive bins:
       if (neg_bins == 1 & pos_bins == 3) {
         pal <- c("#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
-      # 2 negative, 3 positive bins:
+        # 2 negative, 3 positive bins:
       } else if (neg_bins == 2 & pos_bins == 3) {
         pal <- c("#2166ac", "#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
       }
-
+      
       scale_fill_fermenter_custom <- function(pal,
+                                              na.value = "grey60",
                                               breaks,
                                               labels) {
-        binned_scale("fill",
-                     "fermenter",
-                     ggplot2:::binned_pal(scales::manual_pal(unname(pal))),
+        binned_scale(aesthetics = "fill",
+                     scale_name = "fermenter",
+                     palette = ggplot2:::binned_pal(scales::manual_pal(pal)),
+                     na.value = na.value,
                      breaks = breaks,
                      labels = labels)
       }
@@ -200,7 +207,7 @@ make_map_panel <- function(
                              direction = direction,
                              labels = labels)
     }
-
+    
     # gradient color scale
   } else {
     legend_map = legend_map +
@@ -209,22 +216,53 @@ make_map_panel <- function(
                            colors = alpha(MAP_COLORS, .8),
                            limits = range)
   }
-
+  
   # Save legend object
   tmp <- ggplot_gtable(ggplot_build(legend_map))
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
   legend <- tmp$grobs[[leg]]
-
+  
   # Plot maps
   foreach(i = 1:length(period_panels)) %do% {
     data_period = data %>%
-      dplyr::filter(periods == period_panels[i])
-
+      dplyr::filter(periods == period_panels[i]) %>%
+      mutate(var = {{var}})
+    
+    # Force each jenks break point into the data, assigned to a non-Seattle hra
+    # This prevents color palette from being used sequentially when certain breaks aren't present
+    
+    # Create column of breaks
+    var_null = breaks
+    
+    # Get tractid data for non-Oakland tracts
+    non_seattle_hras <-
+      shp_file %>%
+      filter(!HRA2010v2_ %in% seattle_hras$HRA) %>%
+      mutate(HRA = HRA2010v2_) %>%
+      select(HRA) %>%
+      st_drop_geometry()
+    
+    # Get tracts not in Seattle
+    hra = non_seattle_hras[1:length(var_null),]
+    
+    # Create data frame
+    df = data.frame(hra, var_null) %>%
+      mutate(var = var_null) %>%
+      select(hra, var)
+    
+    # Get geometry data
+    df = shp_file %>%
+      right_join(df, by = c("HRA2010v2_" = "hra")) %>%
+      st_transform(CRS("+proj=longlat +datum=WGS84"))
+    
+    # Combine with original data frame
+    data_period = bind_rows(data_period, df)
+    
     map <-
-      ggmap(gmap_oak) +
+      ggmap(gmap_seattle) +
       geom_sf(
         data = data_period,
-        aes(fill = {{var}}),
+        aes(fill = var),
         size = 0,
         alpha = 0.7,
         inherit.aes = FALSE
@@ -255,22 +293,30 @@ make_map_panel <- function(
         panel.border = element_rect(colour = "black", fill=NA)
       ) +
       labs(title = period_panels[i])
-
+    
     # discrete color bar
     if (jenksbreaks) {
-
+      
       # set colors manually if different number of negative and positive bins
       if (neg_bins != pos_bins) {
-        # Custom palette
+        # Custom palettes ***MUST SET CUSTOM COLORS
+        
         # 1 negative, 3 positive bins:
-        pal <- c("#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
-
+        if (neg_bins == 1 & pos_bins == 3) {
+          pal <- c("#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
+          # 2 negative, 3 positive bins:
+        } else if (neg_bins == 2 & pos_bins == 3) {
+          pal <- c("#2166ac", "#67a9cf", "#fddbc7", "#ef8a62", "#b2182b")
+        }
+        
         scale_fill_fermenter_custom <- function(pal,
+                                                na.value = "grey60",
                                                 breaks,
                                                 labels) {
-          binned_scale("fill",
-                       "fermenter",
-                       ggplot2:::binned_pal(scales::manual_pal(unname(pal))),
+          binned_scale(aesthetics = "fill",
+                       scale_name = "fermenter",
+                       palette = ggplot2:::binned_pal(scales::manual_pal(pal)),
+                       na.value = na.value,
                        breaks = breaks,
                        labels = labels)
         }
@@ -284,7 +330,7 @@ make_map_panel <- function(
                                          direction = direction,
                                          labels = labels)
       }
-
+      
       # gradient color scale
     } else {
       map = map + scale_fill_gradientn(breaks = breaks,
@@ -293,7 +339,7 @@ make_map_panel <- function(
                                        limits = range,
                                        na.value = "grey60")
     }
-
+    
     # plot coordinate points
     if (coord == T) {
       + geom_point(
@@ -302,16 +348,16 @@ make_map_panel <- function(
         color = "navy", size = 2
       )
     }
-
+    
     # add map to list of grobs
     maps_all = c(maps_all, list(map))
   }
-
+  
   # arrange period maps into panels
   map_number <- length(period_panels)
   width = 0
   height = 0
-
+  
   if(map_number == 4) {
     layout <- rbind(c(1, 2), c(3, 4), c(5, 5))
     map_panel =
@@ -324,7 +370,20 @@ make_map_panel <- function(
     width = 7
     height = 7.8
   }
-
+  
+  if(map_number == 3) {
+    layout <- rbind(c(1, 2, 3), c(4, 4, 4))
+    map_panel =
+      grid.arrange(maps_all[[1]], maps_all[[2]], maps_all[[3]],
+                   legend,
+                   nrow = 2, ncol = 3,
+                   layout_matrix = layout,
+                   heights = c(5.3, 1),
+                   bottom=textGrob(caption, gp=gpar(fontsize=9,font=3)))
+    width = 9.5
+    height = 4.3
+  }
+  
   if(map_number == 2) {
     layout <- rbind(c(1, 2), c(3, 3))
     map_panel =
@@ -337,8 +396,8 @@ make_map_panel <- function(
     width = 7
     height = 4.1
   }
-
-
+  
+  
   if (save) {
     ggsave(savename, map_panel, height = height, width = width)
     return(map_panel)

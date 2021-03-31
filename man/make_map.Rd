@@ -2,12 +2,12 @@
 % Please edit documentation in R/make_map.R
 \name{make_map}
 \alias{make_map}
-\title{Produce Oakland map of continuous variable with gradient color scale}
+\title{Produce King County map of continuous variable with gradient color scale}
 \usage{
 make_map(
   data,
   var,
-  shp_tracts,
+  shp_file,
   palette = "sequential",
   jenksbreaks = T,
   neg_bins = 3,
@@ -18,7 +18,7 @@ make_map(
   coord = F,
   save = F,
   savename = "plot.png",
-  caption = paste0(frb_caption, ses_caption, period_caption)
+  caption = "test"
 )
 }
 \arguments{
@@ -26,7 +26,7 @@ make_map(
 
 \item{var}{Name of column containing variable to plot.}
 
-\item{shp_tracts}{"US_tract_2010.shp" loaded object}
+\item{shp_file}{Hra shape file}
 
 \item{palette}{Color palette: "sequential" (default) or "diverging"}
 
@@ -54,7 +54,7 @@ make_map(
 Map of variable of interest.
 }
 \description{
-This function takes in data and produces a census tract map of Oakland
-representing the variable using a gradient color scale. Census tract
-column must be named "tractid10".
+This function takes in data and produces an HRA map of Seattle
+representing the variable using a gradient color scale. HRA
+column must be named "HRA".
 }
