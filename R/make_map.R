@@ -51,8 +51,8 @@ make_map <- function(data,
   if (palette == "sequential") {
     lim = NULL
     type = "seq"
-    MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "YlOrRd")
-    palette = "YlOrRd"
+    MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "BuGn")
+    palette = "BuGn"
     direction = 1
     
     # set number of Jenks breaks
@@ -70,8 +70,8 @@ make_map <- function(data,
       abs() %>%
       max(na.rm = T) * c(-1, 1)
     type = "div"
-    MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
-    palette = "RdBu"
+    MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "PRGn"))
+    palette = "PRGn"
     direction = -1
     
     # find Jenks breaks for negative and positive values separately, then combine
@@ -164,7 +164,7 @@ make_map <- function(data,
   
   # discrete color bar
   if (jenksbreaks) {
-    # set colors manually if different number of negative and positive bins
+    # set colors manually if different number of negative and positive bin
     if (neg_bins != pos_bins) {
       # Custom palette
       # one negative, 3 positive bins:

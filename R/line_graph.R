@@ -16,16 +16,18 @@ line_graph <- function(
   dat,
   var,
   limits,
+  title = NULL,
   y_title = NULL,
   save = F,
   savename = "plot.png",
   caption = "" #paste0(acs_caption, "\nUnemployment Estimates were sourced from Catalist's DEEP-MAPS Project.")
 ) {
   
-  colors = ses_cat_colors
+  colors = c(ses_cat_colors, "black")
 
   plot = ggplot(dat, aes(x = periods, y = {{var}}, group = cat)) +
-    geom_line(aes(color = cat), size = 1.5) +
+    ggtitle(title) +
+    geom_line(aes(color = cat), size = 1) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1), 
                        limits = limits, 
                        expand = c(0, 0)) +
@@ -38,7 +40,7 @@ line_graph <- function(
       legend.text = element_text(size = 9),
       legend.position = "bottom",
       # Caption
-      plot.caption = element_text(size = 9, hjust = .5,face = "italic"),
+      plot.caption = element_text(size = 7, hjust = 0),
       # X-axis
       axis.ticks.x = element_blank(),
       axis.title.x = element_blank(),
@@ -53,7 +55,7 @@ line_graph <- function(
       axis.line = element_line(colour = "black"),
       panel.border = element_blank()) +
     guides(color = guide_legend(nrow = 1)) +
-    labs(y = y_title, caption = caption)
+    labs(y = y_title, caption = caption) 
 
   if (save) {
     ggsave(savename, plot, height = 5, width = 6.8)

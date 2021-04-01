@@ -61,9 +61,9 @@ make_map_panel <- function(
     
     range = c(min, max)
     
-    MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "YlOrRd")
+    MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "BuGn")
     type = "seq"
-    palette = "YlOrRd"
+    palette = "BuGn"
     direction = 1
     
     # set number of Jenks breaks
@@ -82,9 +82,9 @@ make_map_panel <- function(
       max(na.rm = T) * c(-1, 1)
     
     # Diverging palette
-    MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "RdBu"))
+    MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "PRGn"))
     type = "div"
-    palette = "RdBu"
+    palette = "PRGn"
     direction = -1
     
     # find Jenks breaks for negative and positive values separately, then combine

@@ -18,6 +18,7 @@ stacked_bar_ses <- function(
   y_title = NULL,
   save = F, 
   savename = "plot.png",
+  title = NULL,
   caption = "test"
 ) {
   
@@ -30,6 +31,7 @@ stacked_bar_ses <- function(
                     x = periods,
                     fill = ses,
                     label = scales::percent({{var}}, accuracy = 0.1))) +
+    ggtitle(title) +
     geom_bar(stat="identity", position = "stack") +
     geom_text(size = 2.2, position = position_stack(vjust = 0.5)) +
     #facet_grid(cols = vars(cat),
@@ -45,7 +47,7 @@ stacked_bar_ses <- function(
       legend.text = element_text(size = 9),
       legend.position = "bottom",
       # Caption
-      plot.caption = element_text(size = 10, hjust = .5, face = "italic"),
+      plot.caption = element_text(size = 7, hjust = 0),
       # X-axis
       axis.ticks.x = element_blank(),
       axis.title.x = element_blank(),
@@ -58,9 +60,9 @@ stacked_bar_ses <- function(
       panel.grid.minor = element_blank(),
       panel.background = element_blank(),
       axis.line = element_line(colour = "black"),
-      panel.border = element_blank(),
+      panel.border = element_blank()
       # Margins
-      plot.margin=unit(c(0,0.5,0,0.5), "cm")
+      #plot.margin=unit(c(0,0.5,0,0.5), "cm")
     ) +
     labs(y = y_title, caption = caption)
   
