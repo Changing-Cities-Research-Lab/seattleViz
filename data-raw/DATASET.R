@@ -150,6 +150,8 @@ frb_acs_caption = "\nSource: Federal Reserve Bank of New York Consumer Credit Pa
 frb_acs_caption_splitline = "\nSource: Federal Reserve Bank of New York Consumer Credit Panel/Equifax Data\nand 2000 US Census, 2005-2009 ACS, and 2012-2016 ACS."
 acs_caption = "\nSource: 2000 US Census, 2005-2009 ACS, and 2012-2016 ACS."
 
+usethis::use_data(frb_caption, overwrite = TRUE, internal = TRUE)
+
 # usethis::use_data(gent_cat_colors,
 #                   gent_cat,
 #                   race_short_colors,
