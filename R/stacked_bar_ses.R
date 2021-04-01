@@ -28,8 +28,10 @@ stacked_bar_ses <- function(
   plot <-
     ggplot(dat, aes(y = {{var}},
                     x = periods,
-                    fill = ses)) +
+                    fill = ses,
+                    label = scales::percent({{var}}, accuracy = 0.1))) +
     geom_bar(stat="identity", position = "stack") +
+    geom_text(size = 3, position = position_stack(vjust = 0.5)) +
     #facet_grid(cols = vars(cat),
     #           rows = vars(facet)) +
     scale_fill_manual(values = values,
