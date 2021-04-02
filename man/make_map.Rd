@@ -22,7 +22,7 @@ make_map(
 )
 }
 \arguments{
-\item{data}{Data with a column containing census tracts and variable of interest.}
+\item{data}{Data with a column containing HRAs and variable of interest.}
 
 \item{var}{Name of column containing variable to plot.}
 
@@ -54,7 +54,7 @@ make_map(
 Map of variable of interest.
 }
 \description{
-This function takes in data and produces an HRA map of Seattle
+This function takes in data and produces an HRA map of King County
 representing the variable using a gradient color scale. HRA
 column must be named "HRA".
 }

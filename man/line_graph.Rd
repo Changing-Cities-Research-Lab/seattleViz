@@ -8,6 +8,7 @@ line_graph(
   dat,
   var,
   limits,
+  title = NULL,
   y_title = NULL,
   save = F,
   savename = "plot.png",

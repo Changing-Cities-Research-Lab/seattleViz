@@ -82,7 +82,7 @@ make_map_panel <- function(
       max(na.rm = T) * c(-1, 1)
     
     # Diverging palette
-    MAP_COLORS <- rev(RColorBrewer::brewer.pal(n = 9, name = "PRGn"))
+    MAP_COLORS <- RColorBrewer::brewer.pal(n = 9, name = "PRGn")
     type = "div"
     palette = "PRGn"
     direction = -1
@@ -121,19 +121,19 @@ make_map_panel <- function(
   }
   
   # county hra map
-  seattle_hras <-
+  kingcounty_hras <-
     shp_file %>%
-    filter(HRA2010v2_ %in% seattle_hras$HRA)
+    filter(HRA2010v2_ %in% kingcounty_hras$HRA)
   
-  data = seattle_hras %>%
+  data = kingcounty_hras %>%
     right_join(data, by = c("HRA2010v2_" = "HRA")) %>%
     st_transform(CRS("+proj=longlat +datum=WGS84"))
   
   # map data
-  # Google Street Map for Oakland ----
-  gmap_seattle <- get_stamenmap(
+  # Google Street Map for King County ----
+  gmap <- get_stamenmap(
     bbox = c(-122.65219845641234, 47.05811462511336, -121.05368763130899, 47.81607270131313),
-    # ^ is all king county tracts
+    # ^ is all king county
     # c(-122.45262191072183, 47.48734893641715, -122.22946210910732, 47.73869829627044) # seattle
     zoom = 10, # use 12 for seattle
     maptype = "toner-lite",
@@ -234,16 +234,16 @@ make_map_panel <- function(
     # Create column of breaks
     var_null = breaks
     
-    # Get tractid data for non-Oakland tracts
-    non_seattle_hras <-
+    # Get hra data for non-King County HRAs
+    non_kingcounty_hras <-
       shp_file %>%
-      filter(!HRA2010v2_ %in% seattle_hras$HRA) %>%
+      filter(!HRA2010v2_ %in% kingcounty_hras$HRA) %>%
       mutate(HRA = HRA2010v2_) %>%
       select(HRA) %>%
       st_drop_geometry()
     
-    # Get tracts not in Seattle
-    hra = non_seattle_hras[1:length(var_null),]
+    # Get HRAs not in King County
+    hra = non_kingcounty_hras[1:length(var_null),]
     
     # Create data frame
     df = data.frame(hra, var_null) %>%
@@ -259,7 +259,7 @@ make_map_panel <- function(
     data_period = bind_rows(data_period, df)
     
     map <-
-      ggmap(gmap_seattle) +
+      ggmap(gmap) +
       geom_sf(
         data = data_period,
         aes(fill = var),

@@ -10,6 +10,7 @@ stacked_bar_ses(
   y_title = NULL,
   save = F,
   savename = "plot.png",
+  title = NULL,
   caption = "test"
 )
 }

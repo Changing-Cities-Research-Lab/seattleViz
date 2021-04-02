@@ -1,10 +1,10 @@
 #' Produce King County map of continuous variable with gradient color scale
 #'
-#' This function takes in data and produces an HRA map of Seattle
+#' This function takes in data and produces an HRA map of King County
 #' representing the variable using a gradient color scale. HRA
 #' column must be named "HRA".
 #'
-#' @param data Data with a column containing census tracts and variable of interest.
+#' @param data Data with a column containing HRAs and variable of interest.
 #' @param var Name of column containing variable to plot.
 #' @param shp_file Hra shape file
 #' @param palette Color palette: "sequential" (default) or "diverging"
@@ -106,11 +106,11 @@ make_map <- function(data,
   
   
   # county hra map
-  seattle_hras <-
+  kingcounty_hras <-
     shp_file %>%
-    filter(HRA2010v2_ %in% seattle_hras$HRA)
+    filter(HRA2010v2_ %in% kingcounty_hras$HRA)
   
-  data = seattle_hras %>%
+  data = kingcounty_hras %>%
     right_join(data, by = c("HRA2010v2_" = "HRA")) %>%
     st_transform(CRS("+proj=longlat +datum=WGS84"))
   
@@ -118,7 +118,7 @@ make_map <- function(data,
   # Google Street Map for King County ----
   gmap <- get_stamenmap(
     bbox = c(-122.65219845641234, 47.05811462511336, -121.05368763130899, 47.81607270131313),
-    # ^ is all king county tracts
+    # ^ is all king county
     # c(-122.45262191072183, 47.48734893641715, -122.22946210910732, 47.73869829627044) # seattle
     zoom = 10, # use 12 for seattle
     maptype = "toner-lite",
