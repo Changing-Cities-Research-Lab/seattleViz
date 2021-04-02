@@ -8,6 +8,7 @@ plot_lollipop(
   data,
   var,
   limits,
+  title = NULL,
   x_title = NULL,
   scale_type = "numeric",
   save = F,
@@ -21,6 +22,8 @@ plot_lollipop(
 \item{var}{Column name of variable of interest.}
 
 \item{limits}{Y-axis limits.}
+
+\item{title}{Plot title}
 
 \item{x_title}{Title to display along x-axis}
 

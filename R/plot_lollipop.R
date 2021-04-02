@@ -8,6 +8,7 @@
 #' @param data Data with column for variable of interest with "facet" and "facet_col"
 #' @param var Column name of variable of interest.
 #' @param limits Y-axis limits.
+#' @param title Plot title
 #' @param x_title Title to display along x-axis
 #' @param scale_type Y-axis scale type: "numeric" or "percent"
 #' @param save T if user would like to return plot object and save file, F (default) to just return object.
@@ -21,6 +22,7 @@ plot_lollipop <- function(
   data,
   var,
   limits,
+  title = NULL,
   x_title = NULL,
   scale_type = "numeric",
   save = F,
@@ -53,6 +55,7 @@ plot_lollipop <- function(
   
   plot <-
     ggplot(data, aes(x = cat, y = {{var}}, fill = facet_col)) +
+    ggtitle(title) +
     geom_segment(aes(x=cat, xend=cat,
                      y=ystart, yend={{var}}), size=0.25,
                  show.legend = FALSE) +
@@ -84,7 +87,7 @@ plot_lollipop <- function(
       # Legend
       legend.position = "none",
       # Caption
-      plot.caption = element_text(size = 4.5, hjust = .5, face = "italic")) +
+      plot.caption = element_text(size = 7, hjust = 0)) +
     labs(y = x_title, caption = caption) +
     coord_flip()
   
