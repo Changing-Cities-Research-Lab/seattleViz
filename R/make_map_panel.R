@@ -144,7 +144,7 @@ make_map_panel <- function(
   
   # Get common legend
   legend_map <-
-    ggmap(gmap_seattle) +
+    ggmap(gmap) +
     geom_sf(
       data = data,
       aes(fill = {{var}}),
