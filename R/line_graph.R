@@ -5,6 +5,8 @@
 #'
 #' @param dat Data with a columns containing variable of interest, character periods variable ("periods"), and grouping variable ("cat").
 #' @param var Name of variable to plot.
+#' @param limits Y-axis limits
+#' @param title Plot title
 #' @param y_title Title to display along y-axis.
 #' @param save T if user would like to return plot object and save file, F (default) to just return object.
 #' @param savename File name of map for saving.
@@ -24,15 +26,19 @@ line_graph <- function(
 ) {
   
   colors = c(ses_cat_colors, "black")
-
+  
   plot = ggplot(dat, aes(x = periods, y = {{var}}, group = cat)) +
     ggtitle(title) +
-    geom_line(aes(color = cat), size = 1) +
+    geom_line(aes(color = cat,
+                  size = cat, 
+                  linetype = cat)) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1), 
                        limits = limits, 
                        expand = c(0, 0)) +
     scale_x_discrete(expand = c(0.03, 0.03)) +
     scale_color_manual(values = colors) +
+    scale_linetype_manual(values = c(1, 1, 1, 1, 2)) +
+    scale_size_manual(values = c(1.6, 1.6, 1.6, 1.6, 0.4)) +
     theme_bw() + theme(
       # Title
       legend.title = element_blank(),
@@ -56,7 +62,7 @@ line_graph <- function(
       panel.border = element_blank()) +
     guides(color = guide_legend(nrow = 1)) +
     labs(y = y_title, caption = caption) 
-
+  
   if (save) {
     ggsave(savename, plot, height = 5, width = 6.8)
   }

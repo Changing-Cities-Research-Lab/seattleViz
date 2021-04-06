@@ -20,6 +20,10 @@ line_graph(
 
 \item{var}{Name of variable to plot.}
 
+\item{limits}{Y-axis limits}
+
+\item{title}{Plot title}
+
 \item{y_title}{Title to display along y-axis.}
 
 \item{save}{T if user would like to return plot object and save file, F (default) to just return object.}
