@@ -71,7 +71,9 @@ plot_lollipop <- function(
     facet_grid(rows = vars(facet),
                cols = vars(facet_col),
                scale = "free",
-               space = "free") +
+               space = "free"
+               #space = "fixed"
+               ) +
     theme_bw() +
     theme(
       # Panel
@@ -92,7 +94,7 @@ plot_lollipop <- function(
     coord_flip()
   
   final_plot = plot
-  height = 7
+  height = 8
   width = 9
   
   if (save) {
