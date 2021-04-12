@@ -17,6 +17,7 @@
 #' @param coord T if plotting coordinate values (lat, lon). Default is F.
 #' @param save T if user would like to return plot object and save file, F (default) to just return object.
 #' @param savename File name of map for saving.
+#' @param title Title of figure
 #' @param caption Figure caption
 #' @return Map of variable of interest.
 #' @export
@@ -35,6 +36,7 @@ make_map <- function(data,
                      coord = F,
                      save = F,
                      savename = "plot.png",
+                     title = NULL,
                      caption = "test" #paste0(frb_caption, ses_caption, period_caption)
 ) {
   
@@ -156,12 +158,13 @@ make_map <- function(data,
       legend.text = element_text(size = 7),
       legend.position = "bottom",
       legend.box.margin = margin(3,0,0,0, unit = "pt"),
-      plot.title = element_blank(),
+      plot.title = element_text(size = 10, hjust = 0),
       plot.margin = margin(3,1,3,1, unit = "pt"),
-      plot.caption = element_text(size = 6, hjust = .5),
+      plot.caption = element_text(size = 6, hjust = 0),
       panel.border = element_rect(colour = "black", fill=NA)
     ) +
-    labs(caption = caption)
+    labs(caption = caption, 
+         title = title)
   
   # discrete color bar
   if (jenksbreaks) {

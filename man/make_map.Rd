@@ -18,6 +18,7 @@ make_map(
   coord = F,
   save = F,
   savename = "plot.png",
+  title = NULL,
   caption = "test"
 )
 }
@@ -47,6 +48,8 @@ make_map(
 \item{save}{T if user would like to return plot object and save file, F (default) to just return object.}
 
 \item{savename}{File name of map for saving.}
+
+\item{title}{Title of figure}
 
 \item{caption}{Figure caption}
 }
